@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/ive_score_screen.dart';
 import '../services/api_service.dart';
 import '../models/match_model.dart';
-import 'live_score_screen.dart';
 
 class MatchListScreen extends StatefulWidget {
   @override
