@@ -4,6 +4,8 @@ import '../services/api_service.dart';
 import '../models/match_model.dart';
 
 class MatchListScreen extends StatefulWidget {
+  const MatchListScreen({super.key}); // ✅ super parameter used
+
   @override
   State<MatchListScreen> createState() => _MatchListScreenState();
 }
@@ -14,18 +16,28 @@ class _MatchListScreenState extends State<MatchListScreen> {
 
   @override
   void initState() {
-    matchFuture = api.fetchMatches();
     super.initState();
+    matchFuture = api.fetchMatches();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Live Matches")),
+      appBar: AppBar(title: const Text("Live Matches")),
       body: FutureBuilder<List<MatchModel>>(
         future: matchFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No matches available"));
+          }
 
           final matches = snapshot.data!;
           return ListView.builder(
@@ -35,12 +47,14 @@ class _MatchListScreenState extends State<MatchListScreen> {
               return ListTile(
                 title: Text("${match.team1} vs ${match.team2}"),
                 subtitle: Text(match.status),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => LiveScoreScreen(matchId: match.matchId),
-                  ),
-                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LiveScoreScreen(matchId: match.matchId),
+                    ),
+                  );
+                },
               );
             },
           );
