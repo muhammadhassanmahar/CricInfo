@@ -49,11 +49,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 subtitle: Text(match.status),
                 trailing: const Icon(Icons.edit),
                 onTap: () {
-                  // ✅ Use PageRouteBuilder to avoid Hero animation crash in Web
+                  // ✅ Fixed unused parameters naming
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) => MatchUpdateScreen(match: match),
+                      pageBuilder: (context, unused1, unused2) =>
+                          MatchUpdateScreen(match: match),
                       transitionDuration: Duration.zero,
                     ),
                   );
