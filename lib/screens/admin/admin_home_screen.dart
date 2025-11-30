@@ -36,6 +36,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           }
 
           final matches = snapshot.data ?? [];
+          if (matches.isEmpty) {
+            return const Center(child: Text("No matches available"));
+          }
+
           return ListView.builder(
             itemCount: matches.length,
             itemBuilder: (context, i) {
@@ -45,10 +49,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 subtitle: Text(match.status),
                 trailing: const Icon(Icons.edit),
                 onTap: () {
+                  // ✅ Use PageRouteBuilder to avoid Hero animation crash in Web
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => MatchUpdateScreen(match: match),
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => MatchUpdateScreen(match: match),
+                      transitionDuration: Duration.zero,
                     ),
                   );
                 },

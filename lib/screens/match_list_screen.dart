@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/ive_score_screen.dart';
 import '../services/api_service.dart';
 import '../models/match_model.dart';
+import 'admin/admin_home_screen.dart'; // ✅ import admin screen
 
 class MatchListScreen extends StatefulWidget {
-  const MatchListScreen({super.key}); // ✅ super parameter used
+  const MatchListScreen({super.key});
 
   @override
   State<MatchListScreen> createState() => _MatchListScreenState();
@@ -59,6 +60,17 @@ class _MatchListScreenState extends State<MatchListScreen> {
             },
           );
         },
+      ),
+      // ✅ FloatingActionButton with child last
+      floatingActionButton: FloatingActionButton(
+        tooltip: "Go to Admin Panel",
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+          );
+        },
+        child: const Icon(Icons.admin_panel_settings), // ✅ child last
       ),
     );
   }

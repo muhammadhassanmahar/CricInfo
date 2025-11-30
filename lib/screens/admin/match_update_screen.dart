@@ -22,6 +22,9 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
   final bowlerController = TextEditingController();
   final overController = TextEditingController();
 
+  bool isUpdatingScore = false;
+  bool isAddingEvent = false;
+
   @override
   void dispose() {
     runsController.dispose();
@@ -35,32 +38,60 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
   }
 
   Future<void> updateScore() async {
-    final score = {
-      "runs": int.tryParse(runsController.text) ?? 0,
-      "wickets": int.tryParse(wicketsController.text) ?? 0,
-      "overs": double.tryParse(oversController.text) ?? 0.0,
-    };
-    await adminApi.updateScore(widget.match.matchId, score);
+    setState(() => isUpdatingScore = true);
 
-    if (!mounted) return; // ✅ safe context check
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Score updated successfully")),
-    );
+    try {
+      final score = {
+        "runs": int.tryParse(runsController.text) ?? 0,
+        "wickets": int.tryParse(wicketsController.text) ?? 0,
+        "overs": double.tryParse(oversController.text) ?? 0.0,
+      };
+      await adminApi.updateScore(widget.match.matchId, score);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Score updated successfully")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error updating score: $e")),
+      );
+    } finally {
+      if (mounted) setState(() => isUpdatingScore = false);
+    }
   }
 
   Future<void> addEvent() async {
-    final event = {
-      "event_type": eventTypeController.text,
-      "batsman": batsmanController.text,
-      "bowler": bowlerController.text,
-      "over": double.tryParse(overController.text) ?? 0.0,
-    };
-    await adminApi.addEvent(widget.match.matchId, event);
+    setState(() => isAddingEvent = true);
 
-    if (!mounted) return; // ✅ safe context check
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Event added successfully")),
-    );
+    try {
+      final event = {
+        "event_type": eventTypeController.text,
+        "batsman": batsmanController.text,
+        "bowler": bowlerController.text,
+        "over": double.tryParse(overController.text) ?? 0.0,
+      };
+      await adminApi.addEvent(widget.match.matchId, event);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Event added successfully")),
+      );
+
+      // Clear event fields after successful add
+      eventTypeController.clear();
+      batsmanController.clear();
+      bowlerController.clear();
+      overController.clear();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error adding event: $e")),
+      );
+    } finally {
+      if (mounted) setState(() => isAddingEvent = false);
+    }
   }
 
   @override
@@ -92,10 +123,14 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
               decoration: const InputDecoration(labelText: "Overs"),
             ),
             const SizedBox(height: 10),
-            ElevatedButton(onPressed: updateScore, child: const Text("Update Score")),
-
+            ElevatedButton(
+              onPressed: isUpdatingScore ? null : updateScore,
+              child: isUpdatingScore
+                  ? const CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2)
+                  : const Text("Update Score"),
+            ),
             const Divider(height: 30),
-
             const Text("Add Event",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             TextField(
@@ -117,7 +152,13 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
               decoration: const InputDecoration(labelText: "Over"),
             ),
             const SizedBox(height: 10),
-            ElevatedButton(onPressed: addEvent, child: const Text("Add Event")),
+            ElevatedButton(
+              onPressed: isAddingEvent ? null : addEvent,
+              child: isAddingEvent
+                  ? const CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2)
+                  : const Text("Add Event"),
+            ),
           ],
         ),
       ),
