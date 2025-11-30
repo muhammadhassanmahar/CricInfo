@@ -1,0 +1,5 @@
+fastapi==0.112.0
+uvicorn[standard]==0.23.2
+motor==4.3.0           # Async MongoDB driver
+pydantic==2.6.1
+python-dotenv==1.0.0   # Optional: for env variables
