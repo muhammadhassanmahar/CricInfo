@@ -41,6 +41,8 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
       "overs": double.tryParse(oversController.text) ?? 0.0,
     };
     await adminApi.updateScore(widget.match.matchId, score);
+
+    if (!mounted) return; // ✅ safe context check
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Score updated successfully")),
     );
@@ -54,6 +56,8 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
       "over": double.tryParse(overController.text) ?? 0.0,
     };
     await adminApi.addEvent(widget.match.matchId, event);
+
+    if (!mounted) return; // ✅ safe context check
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Event added successfully")),
     );
@@ -62,26 +66,56 @@ class _MatchUpdateScreenState extends State<MatchUpdateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Update: ${widget.match.team1} vs ${widget.match.team2}")),
+      appBar: AppBar(
+          title:
+              Text("Update: ${widget.match.team1} vs ${widget.match.team2}")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Update Score", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(controller: runsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Runs")),
-            TextField(controller: wicketsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Wickets")),
-            TextField(controller: oversController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Overs")),
+            const Text("Update Score",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextField(
+              controller: runsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Runs"),
+            ),
+            TextField(
+              controller: wicketsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Wickets"),
+            ),
+            TextField(
+              controller: oversController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Overs"),
+            ),
             const SizedBox(height: 10),
             ElevatedButton(onPressed: updateScore, child: const Text("Update Score")),
 
             const Divider(height: 30),
 
-            const Text("Add Event", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextField(controller: eventTypeController, decoration: const InputDecoration(labelText: "Event Type (WICKET, SIX...)")),
-            TextField(controller: batsmanController, decoration: const InputDecoration(labelText: "Batsman")),
-            TextField(controller: bowlerController, decoration: const InputDecoration(labelText: "Bowler")),
-            TextField(controller: overController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Over")),
+            const Text("Add Event",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextField(
+              controller: eventTypeController,
+              decoration:
+                  const InputDecoration(labelText: "Event Type (WICKET, SIX...)"),
+            ),
+            TextField(
+              controller: batsmanController,
+              decoration: const InputDecoration(labelText: "Batsman"),
+            ),
+            TextField(
+              controller: bowlerController,
+              decoration: const InputDecoration(labelText: "Bowler"),
+            ),
+            TextField(
+              controller: overController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Over"),
+            ),
             const SizedBox(height: 10),
             ElevatedButton(onPressed: addEvent, child: const Text("Add Event")),
           ],
