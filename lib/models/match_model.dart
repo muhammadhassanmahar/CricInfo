@@ -18,11 +18,11 @@ class MatchModel {
 
   factory MatchModel.fromJson(Map<String, dynamic> json) {
     return MatchModel(
-      matchId: json['match_id'],
-      team1: json['team1'],
-      team2: json['team2'],
-      status: json['status'],
-      score: json['score'] != null ? json['score'].toString() : null,
+      matchId: json['match_id'] ?? '',
+      team1: json['team1'] ?? '',
+      team2: json['team2'] ?? '',
+      status: json['status'] ?? '',
+      score: json['score']?.toString(), // null-aware operator
     );
   }
 
