@@ -27,7 +27,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   // -----------------------------
-  // SHOW ADD MATCH POPUP FORM
+  // ADD MATCH
   // -----------------------------
   void showAddMatchDialog() {
     final team1Controller = TextEditingController();
@@ -103,6 +103,105 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   // -----------------------------
+  // DELETE MATCH
+  // -----------------------------
+  void deleteMatchDialog(MatchModel match) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text("Delete Match"),
+        content: Text("Are you sure you want to delete ${match.team1} vs ${match.team2}?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final success = await api.deleteMatch(match.id);
+
+              Navigator.pop(dialogCtx);
+
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(success
+                      ? "Match Deleted Successfully"
+                      : "Error deleting match"),
+                ),
+              );
+
+              if (success) refreshMatches();
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // -----------------------------
+  // EDIT LIVE SCORE / STATUS
+  // -----------------------------
+  void editMatchDialog(MatchModel match) {
+    final statusController = TextEditingController(text: match.status);
+    final scoreController = TextEditingController(text: match.score ?? "");
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text("Update Match"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: statusController,
+                decoration: const InputDecoration(labelText: "Status"),
+              ),
+              TextField(
+                controller: scoreController,
+                decoration: const InputDecoration(labelText: "Score"),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final success = await api.updateMatch(
+                match.id,
+                statusController.text,
+                scoreController.text,
+              );
+
+              Navigator.pop(dialogCtx);
+
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(success
+                      ? "Match Updated Successfully"
+                      : "Error updating match"),
+                ),
+              );
+
+              if (success) refreshMatches();
+            },
+            child: const Text("Update"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // -----------------------------
   // BUILD UI
   // -----------------------------
   @override
@@ -134,13 +233,26 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               return ListTile(
                 title: Text("${match.team1} vs ${match.team2}"),
                 subtitle: Text(match.status),
-                trailing: const Icon(Icons.edit),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: "Edit Match",
+                      onPressed: () => editMatchDialog(match),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: "Delete Match",
+                      onPressed: () => deleteMatchDialog(match),
+                    ),
+                  ],
+                ),
                 onTap: () {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) =>
-                          MatchUpdateScreen(match: match),
+                      pageBuilder: (_, __, ___) => MatchUpdateScreen(match: match),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
                       transitionsBuilder: (_, __, ___, child) => child,

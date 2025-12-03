@@ -50,11 +50,51 @@ class ApiService {
       }),
     );
 
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      return true;
+    } else {
+      debugPrint("Error adding match: ${res.body}");
+      return false;
+    }
+  }
+
+  // -----------------------------------------------------
+  // DELETE MATCH (Admin)
+  // -----------------------------------------------------
+  Future<bool> deleteMatch(String matchId) async {
+    final url = Uri.parse('${AppConfig.baseUrl}/matches/$matchId/delete');
+
+    final res = await http.delete(url);
+
+    if (res.statusCode == 200 || res.statusCode == 204) {
+      return true;
+    } else {
+      debugPrint("Error deleting match: ${res.body}");
+      return false;
+    }
+  }
+
+  // -----------------------------------------------------
+  // UPDATE MATCH (Admin) - status or score
+  // -----------------------------------------------------
+  Future<bool> updateMatch(String matchId, String status, String? score) async {
+    final url = Uri.parse('${AppConfig.baseUrl}/matches/$matchId/update');
+
+    final body = {
+      "status": status,
+      if (score != null) "score": score,
+    };
+
+    final res = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(body),
+    );
+
     if (res.statusCode == 200) {
       return true;
     } else {
-      // debugPrint use kiya hai print ki jagah, safe for Flutter web
-      debugPrint("Error adding match: ${res.body}");
+      debugPrint("Error updating match: ${res.body}");
       return false;
     }
   }
