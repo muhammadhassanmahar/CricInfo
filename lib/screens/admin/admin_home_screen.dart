@@ -21,6 +21,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   void refreshMatches() {
+    if (!mounted) return;
     setState(() {
       matchFuture = api.fetchMatches();
     });
@@ -68,9 +69,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 if (team1Controller.text.isEmpty ||
                     team2Controller.text.isEmpty ||
                     statusController.text.isEmpty) {
-                  ScaffoldMessenger.of(dialogCtx).showSnackBar(
-                    const SnackBar(content: Text("All fields required!")),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(dialogCtx).showSnackBar(
+                      const SnackBar(content: Text("All fields required!")),
+                    );
+                  }
                   return;
                 }
 
@@ -80,10 +83,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   statusController.text,
                 );
 
-                Navigator.pop(dialogCtx);
+                if (mounted) Navigator.pop(dialogCtx);
 
                 if (!mounted) return;
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(success
@@ -120,7 +122,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             onPressed: () async {
               final success = await api.deleteMatch(match.id);
 
-              Navigator.pop(dialogCtx);
+              if (mounted) Navigator.pop(dialogCtx);
 
               if (!mounted) return;
 
@@ -177,10 +179,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               final success = await api.updateMatch(
                 match.id,
                 statusController.text,
-                scoreController.text,
+                scoreController.text.isEmpty ? null : scoreController.text,
               );
 
-              Navigator.pop(dialogCtx);
+              if (mounted) Navigator.pop(dialogCtx);
 
               if (!mounted) return;
 
